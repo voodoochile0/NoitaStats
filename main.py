@@ -2,7 +2,7 @@ import os
 import xml.etree.ElementTree as ET
 import sys
 
-def processThing(x, thing):
+def processAttribute(x, thing):
     file = open(path + "/" + x)
     tree = ET.parse(file)
     root = tree.getroot()[0]
@@ -13,6 +13,16 @@ def checkBest(old, new):
         return new
     else:
         return old
+
+#f = filename
+#s = second dictionary key (stat name)
+#a = attribute name
+def processStat(f, s, a):
+    global stats
+    temp = processAttribute(f, a)
+    if(stats['Most'][s] < temp):
+        stats['Most'][s] = temp
+    stats['Total'][s] = stats['Total'][s] + temp
 
 #Peep stored path file
 
@@ -29,20 +39,10 @@ if len(path) == 0 or input("Enter new username? (y/n)") == 'y':
 
 #Stats to be ooga'd
 
-kills = 0
-deaths = 0
-gold = 0
-kicks = 0
-shots = 0
-i = 0
-
-temp = 0
-
-hK = 0
-hG = 0
-hKi = 0
-hS = 0
-
+stats = {
+        'Most': {'Kills': 0, 'Deaths': 0, 'Gold': 0, 'Kicks': 0, 'Shots': 0},
+        'Total': {'Kills': 0, 'Deaths': 0, 'Gold': 0, 'Kicks': 0, 'Shots': 0}
+        }
 
 for d, n, names in os.walk(path):
     
@@ -51,37 +51,16 @@ for d, n, names in os.walk(path):
         i = 1
 
     while i < len(names):
+
+        processStat(names[i], 'Kills', 'enemies_killed') 
+        processStat(names[i], 'Deaths', 'dead')
+        processStat(names[i], 'Gold', 'gold_all')
+        processStat(names[i], 'Kicks', 'kicks')
+        processStat(names[i], 'Shots', 'projectiles_shot')
         
-        temp = processThing(names[i], 'enemies_killed')
-        kills = kills + temp
-        hK = checkBest(hK, temp)
-        
-        temp = processThing(names[i], 'dead')
-        deaths = deaths + temp
-
-        temp = processThing(names[i], 'gold_all')
-        gold = gold + temp
-        hG = checkBest(hG, temp)
-
-        temp = processThing(names[i], 'kicks')
-        kicks = kicks + temp
-        hKi = checkBest(hKi , temp)
-
-        temp = processThing(names[i], 'projectiles_shot')
-        shots = shots + temp
-        hS = checkBest(hS, temp)
-
         i = i + 2
 
-print("Kills: " + str(kills))
-print("Deaths: " + str(deaths))
-print("Gold: " + str(gold))
-print("Kicks: " + str(kicks))
-print("Shots: " + str(shots))
-
-print("Most Kills: " + str(hK))
-print("Most Gold: " + str(hG))
-print("Most Kicks: " + str(hKi))
-print("Most Shots: " + str(hS))
+for i in stats['Total']:
+    print(i + ' ' + str(stats['Total'][i]))
 
 pathFile.close()
